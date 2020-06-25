@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+
+##
+## EPITECH PROJECT, 2020
+## 204ducks
+## File description:
+## 204ducks
+##
+
+import sys
+import math
+import time
+
+class Ducks():
+    def __init__(self, a):
+        self.a = a
+
+    def F(self, t):
+        return (self.a * math.exp(-t) + (4 - 3 * self.a) * math.exp(-2 * t) + (2 * self.a - 4) * math.exp(-4 * t))
+    
+    def FDerived(self, t):
+        return -self.a * math.exp(-t) - (4 - 3 * self.a) / 2 * math.exp(-2 * t) - (2 * self.a - 4) / 4 * math.exp(-4 * t)
+
+    def averageFromTime(self):
+        average = 0
+        time = 0
+        counter = 1
+
+        while 0.001 * counter != 1:
+            counter *= 10
+        while time < 10:
+            average += self.F(time) * time
+            time += 0.001
+        average /= counter
+        print("Average return time: {}m {}s".format(int(average), round((round(average - (int(average)), 3) * 60 / 100) * 100)))
+        return average
+
+    def getTime(self, min):
+        i = 1.0
+        while 1:
+            if (self.FDerived(i / 60) - self.FDerived(0)) >= min:
+                return formatNumber(i)
+            i += 0.01
+
+    def calcVariance(self, expected):
+        result = 0
+        for x in range(10, 60, 10):
+            result += pow(x, 2) * ((self.a - x) / (5 * self.a - 150))
+        return math.sqrt(result - pow(expected, 2))
+
+    def calcAndDisplay(self):
+        average = self.averageFromTime()
+        
+        print("Standard deviation: {0:.3f}".format(self.calcVariance(average)))
+        print("Time after which 50% of the ducks are back: {}".format(self.getTime(0.50)))
+        print("Time after which 99% of the ducks are back: {}".format(self.getTime(0.99)))
+        print("Percentage of ducks back after 1 minute: {0:.1f}%".format((self.FDerived(1) - self.FDerived(0)) * 100))
+        print("Percentage of ducks back after 2 minutes: {0:.1f}%".format((self.FDerived(2) - self.FDerived(0)) * 100))
+        
+def formatNumber(nb):
+    minute = round(nb / 60)
+    firstSecondDigit = round(nb % 60 / 10)
+    SecondSecondDigit = round(nb % 10)
+    return str(minute) + "m " + str(firstSecondDigit) + str(SecondSecondDigit) + "s"
+
+def printUsage():
+    try:
+        with open("README.md", "r") as file:
+            print(file.read())
+    except:
+        print("Error: Undefined help file.")
+
+def isValidFloat(a):
+    try:
+        newA = float(a)
+        if newA < 0 or newA > 2.5:
+            raise Exception()
+        return newA
+    except:
+        print("Argument is not a number.", file=sys.stderr)
+        sys.exit(84)
+
+def main():
+    if len(sys.argv) != 2:
+        printUsage()
+        sys.exit(84)
+    else:
+        if sys.argv[1] == "-h" or sys.argv[1] == "--help":
+            printUsage()
+        else:
+            a = isValidFloat(sys.argv[1])
+            duck = Ducks(a)
+            duck.calcAndDisplay()
+
+if __name__ == "__main__":
+    main()
